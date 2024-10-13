@@ -5,18 +5,27 @@ import './App.css';
 
 function App() {
 
-  const [word] = useState('COMPUTADORA');
-  const [hiddenWord] = useState('_ '.repeat(word.length));
+  const [pos, setPos ] = useState(0);
+
+  const [ word ] = useState('COMPUTADORA');
+  const [ hiddenWord, setHiddenWord ] = useState('_ '.repeat(word.length));
 
   const [ attempts, setAttempts ] = useState(0);
 
-  const pushLetter = (letter: string) => {
-    console.log(letter);
+  const pushLetter = (letter: string, pos: number) => {
+    const hiddenWordArray = hiddenWord.split(' ');
+    hiddenWordArray[pos] = letter;
+    setPos( Math.min( pos + 1, word.length-1));
+
+    setHiddenWord( hiddenWordArray.join(' ') );
+    
   }
   
   const checkWord = ( word: string) => {
-    console.log(word);
-    setAttempts( Math.min( attempts + 1, 6));    
+    if( word !== hiddenWord) {
+      setAttempts( Math.min( attempts + 1, 6));
+      return;
+    }
   }
 
   return (
@@ -40,7 +49,7 @@ function App() {
       {
         letters.map( (letter) => (
           <button 
-            onClick={ () => pushLetter(letter) }
+            onClick={ () => pushLetter(letter, pos) }
             key={ letter }>
             { letter }
           </button>
