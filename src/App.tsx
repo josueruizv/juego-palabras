@@ -5,42 +5,86 @@ import './App.css';
 
 function App() {
 
+  const [row, setRow] = useState(0);
   const [pos, setPos ] = useState(0);
 
-  const [ word ] = useState('COMPUTADORA');
-  const [ hiddenWord, setHiddenWord ] = useState('_ '.repeat(word.length));
+  const [ word ] = useState('ALA');
+  const [ hiddenWords, setHiddenWords ] = useState(
+    Array(6).fill('_ '.repeat(word.length))
+  );
+  const [letterColors, setLetterColors ] = useState(
+    Array(6).fill(Array(word.length).fill('black'))
+  );
 
-  const [ attempts, setAttempts ] = useState(0);
-
-  const pushLetter = (letter: string, pos: number) => {
-    const hiddenWordArray = hiddenWord.split(' ');
-    hiddenWordArray[pos] = letter;
-    setPos( Math.min( pos + 1, word.length-1));
-
-    setHiddenWord( hiddenWordArray.join(' ') );
+  const pushLetter = (letter: string) => {
+    const currentRow = hiddenWords[row].split(' ');
+    
+    if(pos < word.length){
+      currentRow[pos] = letter
+      setPos(Math.min(pos + 1, word.length))
+    }
+    
+    const updatedWords = [...hiddenWords];
+    updatedWords[row] = currentRow.join(' ');
+    setHiddenWords(updatedWords);
     
   }
-  
-  const checkWord = ( word: string) => {
-    if( word !== hiddenWord) {
-      setAttempts( Math.min( attempts + 1, 6));
-      return;
+
+  const deleteLetter = () => {
+    if(pos > 0){      
+      const currentRow = hiddenWords[row].split(' ');
+      currentRow[pos-1] = '_';
+      setPos(Math.max(pos-1, 0));
+
+      const updatedWords = [...hiddenWords];
+      updatedWords[row] = currentRow.join(' ');
+      setHiddenWords(updatedWords);
     }
+  }
+  
+  const checkWord = ( ) => {
+    const userWord = hiddenWords[row].split(' ').join('');
+    const newColors = letterColors.map(letterColor => [...letterColor]);
+   
+    for(let i=0; i<word.length; i++){
+      if(userWord[i] === word[i]){
+        newColors[row][i] = 'green'
+      }else if(word.includes(userWord[i])){
+        newColors[row][i] = 'orange';
+      }
+    }
+
+    if(row < 6){
+      setLetterColors(newColors);
+      setRow(row + 1);
+      setPos(0);
+    }    
   }
 
   return (
     <div className="App">
       {/* Cuadro */}
-      <h3>{ hiddenWord }</h3>
-      <h3>{ hiddenWord }</h3>
-      <h3>{ hiddenWord }</h3>
-      <h3>{ hiddenWord }</h3>
-      <h3>{ hiddenWord }</h3>
-      <h3>{ hiddenWord }</h3>
+      {
+        hiddenWords.map((hiddenWord, index) => (
+          <h2
+            key={ index }>
+            {
+              hiddenWord.split(' ').map((letter: string, letterIndex: number) => (
+                <span 
+                  key={ letterIndex}
+                  style={{ color: letterColors[index][letterIndex] }}>
+                    { letter }{' '}
+               </span>
+              ))
+            }
+          </h2>
+        ))
+      }
 
       {/* Botón enviar */}
       <button
-        onClick = { () => checkWord('hola mundo') }>
+        onClick = { () => checkWord() }
+        disabled={pos !== word.length}>
         Enviar
       </button>
       <br />
@@ -49,12 +93,18 @@ function App() {
       {
         letters.map( (letter) => (
           <button 
-            onClick={ () => pushLetter(letter, pos) }
-            key={ letter }>
+            onClick={ () => pushLetter(letter) }
+            key={ letter }
+            disabled={row === 6}>
             { letter }
           </button>
         ))
       }
+      <button
+        onClick={ () => deleteLetter() }
+        disabled={pos === 0}>
+          ←
+      </button>
     </div>
   )
 };
