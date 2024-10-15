@@ -8,6 +8,7 @@ import './App.css';
 function App() {
 
   const [ word, setWord ] = useState(getRandomWord());
+  
   const [ hiddenWords, setHiddenWords ] = useState(
     Array(6).fill('_ '.repeat(word.length))
   );
@@ -60,11 +61,22 @@ function App() {
       const userWord = hiddenWords[row].split(' ').join('');
       const newColors = letterColors.map(letterColor => [...letterColor]);
 
+      const countLetters: { [key: string]: number }  = {};
+      for(const le of word){
+        countLetters[le] = (countLetters[le] || 0) + 1;
+      }
+      
+
       for(let i=0; i<word.length; i++){
         if(userWord[i] === word[i]){
-          newColors[row][i] = 'green'
-        }else if(word.includes(userWord[i])){
+          newColors[row][i] = 'green';
+          countLetters[userWord[i]]--;
+        }
+      }
+      for(let i=0; i<word.length; i++){ 
+        if(word.includes(userWord[i]) && countLetters[userWord[i]] > 0){
           newColors[row][i] = 'orange';
+          countLetters[userWord[i]]--;
         }
       }
 

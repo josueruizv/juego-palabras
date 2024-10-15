@@ -12,7 +12,6 @@ const words: string[] = [
 export function getRandomWord() {
     
     const randomIndex = Math.floor(Math.random() * words.length);
-    console.log( randomIndex );
     
 
     return words[randomIndex];
