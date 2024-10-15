@@ -113,8 +113,12 @@ function App() {
             {
               hiddenWord.split(' ').map((letter: string, letterIndex: number) => (
                 <span 
+                  className='letter'
                   key={ letterIndex}
-                  style={{ color: letterColors[index][letterIndex] }}>
+                  style={{ 
+                    color: letterColors[index][letterIndex], 
+                    fontSize:'1.6em' 
+                  }}>
                     { letter }{' '}
                </span>
               ))
@@ -130,6 +134,8 @@ function App() {
         Enviar
       </button>
       <br />
+      <hr />
+
 
       {/* Mensaje si perdió */}
       {
