@@ -1,22 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { letters } from './helpers/letters';
+import { getRandomWord } from './helpers/getRandomWord';
+
 import './App.css';
 
 function App() {
 
-  const [row, setRow] = useState(0);
-  const [pos, setPos ] = useState(0);
-
-  const [ word ] = useState('ALA');
+  const [ word, setWord ] = useState(getRandomWord());
   const [ hiddenWords, setHiddenWords ] = useState(
     Array(6).fill('_ '.repeat(word.length))
   );
-  const [letterColors, setLetterColors ] = useState(
+  const [ row, setRow] = useState(0);
+  const [ pos, setPos ] = useState(0);
+  const [ letterColors, setLetterColors ] = useState(
     Array(6).fill(Array(word.length).fill('black'))
   );
+  const [ lose, setLose ] = useState(false);
+  const [ won, setWon ] = useState(false);
+
+  useEffect(() => {
+    if(row >= 6){
+      setLose(true);
+    }
+  }, [row])
 
   const pushLetter = (letter: string) => {
+    if ( won ) {
+
+      return;
+    }
     const currentRow = hiddenWords[row].split(' ');
     
     if(pos < word.length){
@@ -43,22 +56,39 @@ function App() {
   }
   
   const checkWord = ( ) => {
-    const userWord = hiddenWords[row].split(' ').join('');
-    const newColors = letterColors.map(letterColor => [...letterColor]);
-   
-    for(let i=0; i<word.length; i++){
-      if(userWord[i] === word[i]){
-        newColors[row][i] = 'green'
-      }else if(word.includes(userWord[i])){
-        newColors[row][i] = 'orange';
-      }
-    }
-
     if(row < 6){
+      const userWord = hiddenWords[row].split(' ').join('');
+      const newColors = letterColors.map(letterColor => [...letterColor]);
+
+      for(let i=0; i<word.length; i++){
+        if(userWord[i] === word[i]){
+          newColors[row][i] = 'green'
+        }else if(word.includes(userWord[i])){
+          newColors[row][i] = 'orange';
+        }
+      }
+
+      if(userWord === word){
+
+        setWon(true);
+      }
+
       setLetterColors(newColors);
       setRow(row + 1);
       setPos(0);
-    }    
+    }
+  }
+
+  const newGame = () => {
+    const newWord = getRandomWord();
+
+    setWord( newWord );
+    setHiddenWords( Array(6).fill('_ '.repeat(newWord.length)) );
+    setRow(0);
+    setPos(0);
+    setLetterColors( Array(6).fill(Array(newWord.length).fill('black')) );
+    setLose(false);
+    setWon(false);
   }
 
   return (
@@ -89,13 +119,24 @@ function App() {
       </button>
       <br />
 
+      {/* Mensaje si perdió */}
+      {
+        ( lose ) ? <h2>Has perdido</h2> : ''
+      }
+
+      {/* Mensaje si ganó */}
+      {
+        ( won ) ? <h2>Felicidades! Has ganado</h2> : ''
+      }
+      <br />
+
       {/* Botones de letras */}
       {
         letters.map( (letter) => (
           <button 
             onClick={ () => pushLetter(letter) }
             key={ letter }
-            disabled={row === 6}>
+            disabled={lose || won}>
             { letter }
           </button>
         ))
@@ -105,6 +146,10 @@ function App() {
         disabled={pos === 0}>
           ←
       </button>
+
+      <hr /><br />
+
+      <button onClick={ newGame }>Nuevo Juego</button>
     </div>
   )
 };
